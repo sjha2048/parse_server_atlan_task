@@ -270,3 +270,7 @@ By default, Dokku will wait 10 seconds after starting each container before assu
 - [ ] Use Kubernetes for Deployment 
 - [ ] Explore GKE
 - [ ] Could have used [dokku-kubernetes-scheduler](https://github.com/dokku/dokku-scheduler-kubernetes) because, why not?
+
+## References 
+
+[Dokku Docs](http://dokku.viewdocs.io/dokku/)
