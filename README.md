@@ -106,7 +106,7 @@ Our server is up and running.
 
 ### Scaling 
 
-we have [DOKKU_SCALE](//todo) in which we can specify total number of instances we want by default we have one container running for each service 
+we have [DOKKU_SCALE](https://github.com/sjha2048/parse_server_atlan_task/blob/master/DOKKU_SCALE) in which we can specify total number of instances we want by default we have one container running for each service 
 
 ```
 web=1
