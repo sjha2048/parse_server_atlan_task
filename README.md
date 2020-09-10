@@ -53,7 +53,7 @@ In easy words, I like to refer it as my own personal [Heroku](https://www.heroku
 ## Why Use Dokku?
 
 <div align="center">
-<img src="https://media.giphy.com/media/z1GQ9t8FxipnG/giphy.gif" width="720" alt="whyyyyyyyyy">
+<img src="assets/giphy.webp" width="720" alt="whyyyyyyyyy">
 </div>
 
 - ### Own PaaS at a fraction of a cost 
