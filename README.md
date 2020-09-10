@@ -104,6 +104,14 @@ Our server is up and running.
 <img src="assets/parse_test.png" width="720" alt="parse-test">
 </div>
 
+### Scaling 
+
+we have [DOKKU_SCALE](//todo) in which we can specify total number of instances we want by default we have one container running for each service 
+
+```
+web=1
+parsedb=1
+```
 
 <h2>5. Incremental remotely triggered application updates 🕹️</h2>
 
@@ -223,7 +231,12 @@ dokku letsencrypt grafana
 
 Now we can add Prometheus as a datasource in our Grafana dashboard and give ourselves a praise 
 
-//todo add dashboard image
+Here's the grafana dashboard with container_cpu_user_seconds_total
+
+<div align="center">
+<img src="assets/grafana_dashboard.png" width="720" alt="dokku-marketplace">
+</div>
+
 
 
 ### Ps: We could have bootstraped our health monitoring tools with the help of docker-compose 
