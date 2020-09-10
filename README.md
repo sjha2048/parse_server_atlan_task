@@ -56,14 +56,14 @@ In easy words, I like to refer it as my own personal [Heroku](https://www.heroku
 <img src="assets/giphy.webp" width="720" alt="whyyyyyyyyy">
 </div>
 
-- ### Own PaaS at a fraction of a cost 
-- ### Great for Incremental remotely triggered application updates 
+- #### Own PaaS at a fraction of a cost 
+- #### Great for Incremental remotely triggered application updates 
     - as simple as
       > ```git push dokku```
-- ### Own custom buildpacks 
-- ### Ease of Deployment 
-- ### Support for remote debugging 
-- ### I just wanted to try it out 😉
+- #### Own custom buildpacks 
+- #### Ease of Deployment 
+- #### Support for remote debugging 
+- #### I just wanted to try it out 😉
 
 <h2>4. Let's get started 🚀</h2>
 
