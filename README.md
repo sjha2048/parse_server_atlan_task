@@ -30,12 +30,21 @@ Here is the list of tools with official installation guides which I have/tried t
 - [Grafana](https://grafana.com/grafana/download)
 - [Helm](https://helm.sh/docs/)
 - [Kubernetes](https://kubernetes.io/docs/tutorials/hello-minikube/)
+- [Kompose](https://kompose.io/installation/)
 
-as mentioned in the problem statement, we can use cloud VMs or enterprise-level client-managed hardware; for the sake of simplicity let's use a [custom image](https://marketplace.digitalocean.com/apps/dokku) provided by [digital ocean](https://www.digitalocean.com/) which already has dokku and docker installed. 
+#### Predeployment Setup
+As mentioned in the problem statement, we can use cloud VMs or enterprise-level client-managed hardware; for the sake of simplicity let's use a [custom image](https://marketplace.digitalocean.com/apps/dokku) provided by [digital ocean](https://www.digitalocean.com/) which already has dokku and docker installed. 
 
 <div align="center">
 <img src="assets/dokku_marketplace.png" width="720" alt="dokku-marketplace">
 </div>
+
+Also our application depends on MongoDB, so let's create one Atlas cluster and fetch the required Database URI for connecting the db to our application.
+
+<div align="center">
+<img src="assets/mongo-cluster.png" width="720" alt="dokku-marketplace">
+</div>
+
 
 
 <h2>3. What sorcery is dokku </h2>
@@ -56,14 +65,14 @@ In easy words, I like to refer it as my own personal [Heroku](https://www.heroku
 <img src="assets/giphy.webp" width="720" alt="whyyyyyyyyy">
 </div>
 
-- #### Own PaaS at a fraction of a cost 
-- #### Great for Incremental remotely triggered application updates 
+- ##### Own PaaS at a fraction of a cost 
+- ##### Great for Incremental remotely triggered application updates 
     - as simple as
       > ```git push dokku```
-- #### Own custom buildpacks 
-- #### Ease of Deployment 
-- #### Support for remote debugging 
-- #### I just wanted to try it out 😉
+- ##### Own custom buildpacks 
+- ##### Ease of Deployment 
+- ##### Support for remote debugging 
+- ##### I just wanted to try it out 😉
 
 <h2>4. Let's get started 🚀</h2>
 
@@ -73,14 +82,6 @@ We can create a new application on our Dokku server which is hosted on a digital
 
 ```
 dokku apps:create parse-server-example 
-```
-
-as our application relies on mongodb, hence let's create a database with help of [mongodb plugin](https://github.com/dokku/dokku-mongo)
-
-```
-    > dokku mongo:create parsedb
-    > dokku apps:create parse
-    > dokku mongo:link parsedb:parse-server-example 
 ```
 
 We don't need to set up port here, Dokku will do this for us 
@@ -98,12 +99,33 @@ we can fetch our docker hub image which is pushed with the help of a github acti
 
 ### And terminé!!! 
 
-Our server is up and running.
+Our server is up and running, and can be accessed at [167.172.159.202:1337/test](http://167.172.159.202:1337/test)
 
 <div align="center">
 <img src="assets/parse_test.png" width="720" alt="parse-test">
 </div>
 
+### Alternatively 
+We can use Kubernetes to create our deployment, follow these steps.
+
+1. Create a deployment using our Docker image 
+   ```
+   kubectl create deployment parse-server --image=sjha2048/parse_dokku
+   ```
+2. Expose the Pod to the public internet using the kubectl expose command.
+   ```
+   kubectl expose deployment parse-server --type=LoadBalancer --port=1337
+   ```
+
+and now we can view our service with 
+
+```
+minikube service parse-server
+```
+
+<div align="center">
+<img src="assets/kubectl-terminal.png" width="720" alt="parse-test">
+</div>
 ### Scaling 
 
 we have [DOKKU_SCALE](https://github.com/sjha2048/parse_server_atlan_task/blob/master/DOKKU_SCALE) in which we can specify total number of instances we want by default we have one container running for each service 
@@ -112,6 +134,17 @@ we have [DOKKU_SCALE](https://github.com/sjha2048/parse_server_atlan_task/blob/m
 web=1
 parsedb=1
 ```
+
+#### Scaling Our Kubernetes Deployment
+
+We can easily scale our deployment using the following command 
+
+```
+kubectl scale deployments/parse-server --replicas=3
+```
+<div align="center">
+<img src="assets/kubectl-scaling.png" width="720" alt="parse-test">
+</div>
 
 <h2>5. Incremental remotely triggered application updates 🕹️</h2>
 
@@ -143,6 +176,15 @@ just run
 
 ```ssh -t dokku@dokku.me <command>```
 
+for acessing the shell of our Kubernetes deployment we can use [telepresence](https://www.telepresence.io/reference/install) to gain remote access for use following command locally inside the instance
+
+```
+kubectl exec --stdin --tty parse-server -- /bin/bash
+```
+
+<div align="center">
+<img src="assets/kubectl-debug.png" width="720" alt="parse-test">
+</div>
 we'll cover this in detail in "Health Alerts and Monitoring" section as it will give us a plethora of information to analyze our containers metrics.
 
 <h2>7. Health Alerts and Monitoring 🩺 </h2>
@@ -168,6 +210,12 @@ Setting up the configuration
 ```
 dokku config:set prometheus DOKKU_DOCKERFILE_START_CMD="--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles --web.enable-lifecycle"
 ```
+
+Access it [here](http://167.172.159.202:9090/graph)
+
+<div align="center">
+<img src="assets/prometheus.png" width="720" alt="parse-test">
+</div>
 
 Raising Node Exporter up 🙌
 
@@ -212,6 +260,12 @@ dokku letsencrypt cadvisor
 dokku http-auth:on cadvisor <username> <password>
 ```
 
+Access it [here](http://167.172.159.202:8080/containers/)
+
+<div align="center">
+<img src="assets/cadvisor.png" width="720" alt="parse-test">
+</div>
+
 Visualizing this black magic with Grafana 📈
 
 ```
@@ -231,17 +285,62 @@ dokku letsencrypt grafana
 
 Now we can add Prometheus as a datasource in our Grafana dashboard and give ourselves a praise 
 
-Here's the grafana dashboard with container_cpu_user_seconds_total
+Here's the grafana dashboard with fs_io_time_seconds_total and cpu_seconds_total metrics 
 
 <div align="center">
-<img src="assets/grafana_dashboard.png" width="720" alt="dokku-marketplace">
+<img src="assets/grafana-dash.png" width="720" alt="dokku-marketplace">
 </div>
 
 
 
-### Ps: We could have bootstraped our health monitoring tools with the help of docker-compose 
+### Ps: We could have bootstraped our application health monitoring tools with the help of docker-compose 
 
-More details about this can be found [here](https://grafana.com/grafana/dashboards/893)
+Here's how 
+
+```
+version: '3.2'
+services:
+  parse:
+    image: sjha2048/parse_dokku
+    container_name: parsedb
+    ports:
+    - 1337:1337
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+    - 9090:9090
+    command:
+    - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+    - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+    - cadvisor
+  cadvisor:
+    image: gcr.io/google-containers/cadvisor:latest
+    container_name: cadvisor
+    ports:
+    - 8080:8080
+    volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    depends_on:
+    - redis
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+    - 6379:6379
+```
+
+we can simply run it by:
+
+```
+docker-compose up 
+```
+
 
 <h2>8. Application Security (with source code protection) 🔒 </h2>
 
@@ -273,14 +372,26 @@ git init && git remote add dokku dokku@[dokku.me:app-name]
 git pull dokku/master && git checkout dokku/master
 ```
 
-<h2>10. Zero Downtime deployment with Dokku 0️⃣ </h2>
+<h2>10 (a). Zero Downtime deployment with Dokku 0️⃣ </h2>
 
 Dokku switches traffic over to the new container before the server loads complete, so each deploy has several seconds of downtime.
 By default, Dokku will wait 10 seconds after starting each container before assuming it is up and proceeding with the deploy. Once this has occurred for all containers started by for an application, traffic will be switched to point to your new containers. Dokku will also wait a further 60 seconds after the deploy is complete before terminating old containers in order to give time for long running connections to terminate. In either case, we can have more than one container running for a given application.
 
+<h2>10 (b). Zero Downtime deployment with Kubernetes 0️⃣ </h2>
+
+We can have two identical enviornments for risk free updates, i.e, user access one while the other one is receiving updates.
+
+this can be best understood by the following illustration by [semaphoreci](https://semaphoreci.com/)
+
+<div align="center">
+<img src="https://wpblog.semaphoreci.com/wp-content/uploads/2020/09/bg-overview-1024x776.webp" width="720" alt="bg-deployment">
+</div>
+
+
+
 ## Todo
 
-- [ ] Use Kubernetes for Deployment 
+- [x] Use Kubernetes for Deployment 
 - [ ] Explore GKE
 - [ ] Could have used [dokku-kubernetes-scheduler](https://github.com/dokku/dokku-scheduler-kubernetes) because, why not?
 
