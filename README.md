@@ -285,7 +285,7 @@ dokku letsencrypt grafana
 
 Now we can add Prometheus as a datasource in our Grafana dashboard and give ourselves a praise 
 
-Here's the grafana dashboard with fs_io_time_seconds_total and cpu_seconds_total metrics 
+Here's the grafana dashboard with fs_io_time_seconds_total and cpu_seconds_total metrics you can access it [here](http://167.172.159.202:3000/)
 
 <div align="center">
 <img src="assets/grafana-dash.png" width="720" alt="dokku-marketplace">
