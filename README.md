@@ -126,6 +126,7 @@ minikube service parse-server
 <div align="center">
 <img src="assets/kubectl-terminal.png" width="720" alt="parse-test">
 </div>
+
 ### Scaling 
 
 we have [DOKKU_SCALE](https://github.com/sjha2048/parse_server_atlan_task/blob/master/DOKKU_SCALE) in which we can specify total number of instances we want by default we have one container running for each service 
